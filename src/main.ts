@@ -7,6 +7,8 @@ import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
+import ExpansionRule from './l-systems/expansionrule';
+import LSystemParser from './l-systems/lsystemparser';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -16,6 +18,8 @@ const controls = {
 let square: Square;
 let screenQuad: ScreenQuad;
 let time: number = 0.0;
+
+let lsystem: LSystemParser;
 
 function loadScene() {
   square = new Square();
@@ -47,6 +51,15 @@ function loadScene() {
   let colors: Float32Array = new Float32Array(colorsArray);
   square.setInstanceVBOs(offsets, colors);
   square.setNumInstances(n * n); // grid of "particles"
+
+  // CONSTRUCT L SYSTEM
+  let ruleMap = new Map<string, ExpansionRule>();
+  let iterations = 2;
+  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "AA"}]));
+  ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "[+AB][-AB]"}]));
+  lsystem = new LSystemParser("AB", ruleMap, iterations);
+
+  lsystem.parseCaller();
 }
 
 function main() {
