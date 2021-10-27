@@ -3,43 +3,59 @@ import { vec3, vec4, mat4 } from 'gl-matrix';
 import DrawingRule from './drawingrule';
 
 class Turtle {
-    currPosition: mat4;
-    currOrientation: mat4; //forward vector
+    // currPosition: mat4;
+    // currOrientation: mat4; //forward vector
+    currTransform: mat4;
+    //stepSize: number;
+    //angle: number;
+
+    startPos: vec4;
+    //startOri: vec4;
+
+    //currTranslation: mat4;
+    //currRotation: mat4;
+
+    //currPosition: vec4;
+    //currOrientation: vec4;
+
     recursionDepth: number;
     drawRule: DrawingRule;
 
-    constructor(pos: vec4, ori: vec4, depth: number ) {
+    constructor(pos: vec4, depth: number, stepSize: number) {
         this.recursionDepth = depth;
-        this.drawRule = null;
+        this.startPos = pos;
+        
+        //this.currPosition = pos;
+        //this.currOrientation = ori;
 
-        // set orientation
-        // let oriMatrix = mat4.fromValues(ori[0], 0.0, 0.0, 0.0,
-        //                                 0.0, ori[1], 0.0, 0.0,
-        //                                 0.0, 0.0, ori[2], 0.0,
-        //                                 0.0, 0.0, 0.0, 1.0);
-        let oriMatrix = mat4.create();
-        mat4.rotateX(oriMatrix, oriMatrix, ori[0]);
-        mat4.rotateY(oriMatrix, oriMatrix, ori[1]);
-        mat4.rotateZ(oriMatrix, oriMatrix, ori[2]);
+        this.currTransform = mat4.create();
 
-        this.currOrientation = oriMatrix;
-
-        // set position
-        let posMatrix = mat4.fromValues(1.0, 0.0, 0.0, pos[0],
-                                        0.0, 1.0, 0.0, pos[1],
-                                        0.0, 0.0, 1.0, pos[2],
-                                        0.0, 0.0, 0.0, 1.0);
-        // let posMatrix = mat4.create();
-        // mat4.translate(posMatrix, posMatrix, vec3.fromValues(pos[0], pos[1], pos[2]));
-        this.currPosition = posMatrix;
+        //this.stepSize = stepSize;
     }
 
-    getLocalTransform() : mat4 {
-        let transform = mat4.create();
-        console.log("position:");
-        console.log(this.currPosition);
-        mat4.multiply(transform, this.currOrientation, this.currPosition);
-        return transform;
+    getTransform() : mat4 {
+        return this.currTransform;
+    }
+
+    marchForward(marchVector: vec3, stepSize: number) {
+        //vec4.add(this.currPosition, this.currPosition, vec4.fromValues(0.0, this.stepSize, 0.0, 0.0));
+        let newTransMatrix = mat4.fromValues(1.0, 0.0, 0.0, stepSize * marchVector[0],
+                                            0.0, 1.0, 0.0, stepSize * marchVector[1],
+                                            0.0, 0.0, 1.0, stepSize * marchVector[2],
+                                            0.0, 0.0, 0.0, 1.0);
+        mat4.multiply(this.currTransform, this.currTransform, newTransMatrix);
+    }
+
+    // assumes rotateAxis is always one of the three axes
+    // will always have 0s or 1s
+    rotate(rotateAxis: vec3, angle: number) {
+        //vec4.add(this.currOrientation, this.currOrientation, vec4.fromValues(rotateAxis[0], rotateAxis[1], rotateAxis[2], 0.0));
+        let newRotMatrix = mat4.create();
+        mat4.rotateX(newRotMatrix, newRotMatrix, rotateAxis[0] * angle);
+        mat4.rotateY(newRotMatrix, newRotMatrix, rotateAxis[1] * angle);
+        mat4.rotateZ(newRotMatrix, newRotMatrix, rotateAxis[2] * angle);
+
+        mat4.multiply(this.currTransform, this.currTransform, newRotMatrix);
     }
 }
 

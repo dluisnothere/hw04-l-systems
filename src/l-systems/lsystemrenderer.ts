@@ -1,5 +1,5 @@
 import Turtle from './turtle';
-import { vec4, mat4 } from 'gl-matrix';
+import { vec3, vec4, mat4 } from 'gl-matrix';
 import DrawingRule from './drawingrule';
 import Square from '../geometry/Square';
 import { ENGINE_METHOD_STORE } from 'constants';
@@ -34,7 +34,9 @@ class LSystemRenderer {
     traverseGrammar() {
         // for now, only 2d, but in 3d, randomly choose axis
         let turtPos = vec4.fromValues(0.0, 0.0, 0.0, 1.0);
-        let turtOri = vec4.fromValues(0.0, 0.0, 0.0, 0.0);
+        //let turtOri = vec4.fromValues(0.0, 0.0, 0.0, 0.0);
+        let turt = new Turtle(turtPos, 0, this.segLength);
+        
         // traverse string
         for(let i = 0; i < this.expandedGrammar.length; i++) {
 
@@ -42,29 +44,23 @@ class LSystemRenderer {
 
             // turtle
             // make new turtle when old turtle goes on the stack (AKA marks pivot point)
+            let zAxis = vec3.fromValues(0.0, 0.0, 1.0);
+            let yAxis = vec3.fromValues(0.0, 1.0, 0.0);
+
             if (this.isCharacter(currChar)) {
-                // locally translate upward by 2 units
-                vec4.add(turtPos, turtPos, vec4.fromValues(0.0, this.segLength, 0.0, 0.0));
-                console.log("added vec");
-                console.log(turtPos);
+                turt.marchForward(yAxis, this.segLength);
             } else if (currChar == "+") {
-                // locally rotate Z axis by 30 egrees
-                turtOri[2] += this.toRadian(30.0);
+                turt.rotate(zAxis, this.toRadian(30.0));
+                continue;
             } else if (currChar == "-") {
-                // locally rotate Z axis by -30 deg
-                turtOri[2] -= this.toRadian(30.0);
+                let zAxis = vec3.fromValues(0.0, 0.0, 1.0);
+                turt.rotate(zAxis, this.toRadian(-30.0));
+                continue;
             }
 
-            //console.log("turtPos");
-            //console.log(turtPos);
-
-            //console.log("turtOri");
-            //console.log(turtOri);
-
-            let turt = new Turtle(turtPos, turtOri, 0);
             let sq = new Square();
 
-            let drawRule = new DrawingRule(sq, turt.getLocalTransform());
+            let drawRule = new DrawingRule(sq, turt.getTransform());
             this.transformList.push(drawRule);
         }
 

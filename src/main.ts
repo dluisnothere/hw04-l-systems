@@ -43,13 +43,13 @@ function loadScene() {
 
   // CONSTRUCT L SYSTEM
   let ruleMap = new Map<string, ExpansionRule>();
-  let iterations = 3;
-  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "A"}]));
-  ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "A+B"}]));
-  lsystem = new LSystemParser("AB", ruleMap, iterations);
+  let iterations = 2;
+  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "A+A"}]));
+  //ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "+AB"}]));
+  lsystem = new LSystemParser("A", ruleMap, iterations);
   lsystem.parseCaller();
 
-  lrender = new LSystemRenderer(lsystem.currString, 2.0);
+  lrender = new LSystemRenderer(lsystem.currString, 1.0);
   lrender.traverseGrammar();
 
   // set up lsystem transforms

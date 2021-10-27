@@ -17,7 +17,9 @@ class DrawingRule {
     // square for now. Will be a mesh later
     constructor(finalShape: Square, trans: mat4) {
         this.shape = finalShape;
-        this.transform = trans;
+        this.transform = mat4.create();
+        
+        mat4.copy(this.transform, trans);
     }
 }
 
