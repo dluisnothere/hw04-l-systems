@@ -1,4 +1,4 @@
-import {vec3} from 'gl-matrix';
+import {vec3, mat4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
@@ -9,6 +9,8 @@ import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import ExpansionRule from './l-systems/expansionrule';
 import LSystemParser from './l-systems/lsystemparser';
+import LSystemRenderer from './l-systems/lsystemrenderer';
+import Mesh from './geometry/Mesh';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -16,14 +18,20 @@ const controls = {
 };
 
 let square: Square;
+let mesh: Mesh;
 let screenQuad: ScreenQuad;
 let time: number = 0.0;
 
 let lsystem: LSystemParser;
+let lrender: LSystemRenderer;
 
 function loadScene() {
   square = new Square();
   square.create();
+
+  mesh = new Mesh("../cylinder.obj", vec3.fromValues(0.0,0.0,0.0));
+  mesh.create();
+
   screenQuad = new ScreenQuad();
   screenQuad.create();
 
@@ -32,34 +40,98 @@ function loadScene() {
   // offsets and gradiated colors for a 100x100 grid
   // of squares, even though the VBO data for just
   // one square is actually passed to the GPU
+
+  // CONSTRUCT L SYSTEM
+  let ruleMap = new Map<string, ExpansionRule>();
+  let iterations = 3;
+  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "A"}]));
+  ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "A+B"}]));
+  lsystem = new LSystemParser("AB", ruleMap, iterations);
+  lsystem.parseCaller();
+
+  lrender = new LSystemRenderer(lsystem.currString, 2.0);
+  lrender.traverseGrammar();
+
+  // set up lsystem transforms
+  let transVec41Array = [];
+  let transVec42Array = [];
+  let transVec43Array = [];
+  let transVec44Array = [];
+
+  let nInstances = 0;
+
+  let lSystemTransforms = lrender.transformList;
+
+  for (let i = 0; i < lSystemTransforms.length; i++) {
+    let currentMat = lSystemTransforms[i].transform;
+    transVec41Array.push(currentMat[0]);
+    transVec41Array.push(currentMat[4]);
+    transVec41Array.push(currentMat[8]);
+    transVec41Array.push(currentMat[12]);
+
+    transVec42Array.push(currentMat[1]);
+    transVec42Array.push(currentMat[5]);
+    transVec42Array.push(currentMat[9]);
+    transVec42Array.push(currentMat[13]);
+
+    transVec43Array.push(currentMat[2]);
+    transVec43Array.push(currentMat[6]);
+    transVec43Array.push(currentMat[10]);
+    transVec43Array.push(currentMat[14]);
+
+    transVec44Array.push(currentMat[3]);
+    transVec44Array.push(currentMat[7]);
+    transVec44Array.push(currentMat[11]);
+    transVec44Array.push(currentMat[15]);
+
+    nInstances += 1;
+  }
+
+  let transVec41 : Float32Array = new Float32Array(transVec41Array);
+  let transVec42 : Float32Array = new Float32Array(transVec42Array);
+  let transVec43 : Float32Array = new Float32Array(transVec43Array);
+  let transVec44 : Float32Array = new Float32Array(transVec44Array);
+
+  console.log("lsystemtrans");
+  console.log(lSystemTransforms);
+
+  console.log("count");
+  console.log(nInstances);
+
+  console.log("length of vec");
+  console.log(transVec41.length);
   let offsetsArray = [];
   let colorsArray = [];
-  let n: number = 100.0;
-  for(let i = 0; i < n; i++) {
-    for(let j = 0; j < n; j++) {
-      offsetsArray.push(i);
-      offsetsArray.push(j);
-      offsetsArray.push(0);
+  //let n: number = 1.0;
+  for(let i = 0; i < nInstances; i++) {
+    for(let j = 0; j < nInstances; j++) {
+      // offsetsArray.push(i);
+      // offsetsArray.push(j);
+      // offsetsArray.push(0);
 
-      colorsArray.push(i / n);
-      colorsArray.push(j / n);
+      offsetsArray.push(0);
+      offsetsArray.push(0);
+      offsetsArray.push(0);
+      //offsetsArray.push(0);
+
+      // colorsArray.push(i / n);
+      // colorsArray.push(j / n);
+      colorsArray.push(1.0);
+      colorsArray.push(1.0);
       colorsArray.push(1.0);
       colorsArray.push(1.0); // Alpha channel
     }
   }
   let offsets: Float32Array = new Float32Array(offsetsArray);
   let colors: Float32Array = new Float32Array(colorsArray);
+
+  // new matrix to set vbo transformations
+  square.setInstanceLSystemVBOs(transVec41, transVec42, transVec43, transVec44, colors);
   square.setInstanceVBOs(offsets, colors);
-  square.setNumInstances(n * n); // grid of "particles"
+  square.setNumInstances(nInstances); // grid of "particles"
 
-  // CONSTRUCT L SYSTEM
-  let ruleMap = new Map<string, ExpansionRule>();
-  let iterations = 2;
-  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "AA"}]));
-  ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "[+AB][-AB]"}]));
-  lsystem = new LSystemParser("AB", ruleMap, iterations);
-
-  lsystem.parseCaller();
+  //square.setNumInstances(n);
+  
 }
 
 function main() {
@@ -87,9 +159,10 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(50, 50, 10), vec3.fromValues(50, 50, 0));
+  const camera = new Camera(vec3.fromValues(-20, -20, -20), vec3.fromValues(0, 0, 0));
 
   const renderer = new OpenGLRenderer(canvas);
+  // 0.7
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE); // Additive blending

@@ -27,6 +27,12 @@ class ShaderProgram {
   attrTranslate: number; // Used in the vertex shader during instanced rendering to offset the vertex positions to the particle's drawn position.
   attrUV: number;
 
+  //add transform mat's vec4s
+  attrTransVec41: number;
+  attrTransVec42: number;
+  attrTransVec43: number;
+  attrTransVec44: number;
+
   unifModel: WebGLUniformLocation;
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
@@ -52,6 +58,15 @@ class ShaderProgram {
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
     this.attrTranslate = gl.getAttribLocation(this.prog, "vs_Translate");
     this.attrUV = gl.getAttribLocation(this.prog, "vs_UV");
+
+    //TODO 
+    // create new input vec4s that represent mat4
+    this.attrTransVec41 = gl.getAttribLocation(this.prog, "vs_TransVec41");
+    this.attrTransVec42 = gl.getAttribLocation(this.prog, "vs_TransVec42");
+    this.attrTransVec43 = gl.getAttribLocation(this.prog, "vs_TransVec43");
+    this.attrTransVec44 = gl.getAttribLocation(this.prog, "vs_TransVec44");
+
+  
     this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
@@ -159,6 +174,31 @@ class ShaderProgram {
 
     // TODO: Set up attribute data for additional instanced rendering data as needed
 
+    //add attr vec4s
+    if (this.attrTransVec41 != -1 && d.bindTransVec41()) {
+      gl.enableVertexAttribArray(this.attrTransVec41);
+      gl.vertexAttribPointer(this.attrTransVec41, 4, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribDivisor(this.attrTransVec41, 1); // Advance 1 index in pos VBO for each vertex
+    }
+
+    if (this.attrTransVec42 != -1 && d.bindTransVec42()) {
+      gl.enableVertexAttribArray(this.attrTransVec42);
+      gl.vertexAttribPointer(this.attrTransVec42, 4, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribDivisor(this.attrTransVec42, 1); // Advance 1 index in pos VBO for each vertex
+    }
+
+    if (this.attrTransVec43 != -1 && d.bindTransVec43()) {
+      gl.enableVertexAttribArray(this.attrTransVec43);
+      gl.vertexAttribPointer(this.attrTransVec43, 4, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribDivisor(this.attrTransVec43, 1); // Advance 1 index in pos VBO for each vertex
+    }
+
+    if (this.attrTransVec44 != -1 && d.bindTransVec44()) {
+      gl.enableVertexAttribArray(this.attrTransVec44);
+      gl.vertexAttribPointer(this.attrTransVec44, 4, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribDivisor(this.attrTransVec44, 1); // Advance 1 index in pos VBO for each vertex
+    }
+
     d.bindIdx();
     // drawElementsInstanced uses the vertexAttribDivisor for each "in" variable to
     // determine how to link it to each drawn instance of the bound VBO.
@@ -178,6 +218,14 @@ class ShaderProgram {
     if (this.attrCol != -1) gl.disableVertexAttribArray(this.attrCol);
     if (this.attrTranslate != -1) gl.disableVertexAttribArray(this.attrTranslate);
     if (this.attrUV != -1) gl.disableVertexAttribArray(this.attrUV);
+
+    //TODO
+    //add attr vec4s
+    if (this.attrTransVec41 != -1) gl.disableVertexAttribArray(this.attrTransVec41);
+    if (this.attrTransVec42 != -1) gl.disableVertexAttribArray(this.attrTransVec42);
+    if (this.attrTransVec43 != -1) gl.disableVertexAttribArray(this.attrTransVec43);
+    if (this.attrTransVec44 != -1) gl.disableVertexAttribArray(this.attrTransVec44);
+
   }
 };
 
