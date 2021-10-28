@@ -58,6 +58,7 @@ class ShaderProgram {
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
     this.attrTranslate = gl.getAttribLocation(this.prog, "vs_Translate");
     this.attrUV = gl.getAttribLocation(this.prog, "vs_UV");
+    this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
 
     //TODO 
     // create new input vec4s that represent mat4

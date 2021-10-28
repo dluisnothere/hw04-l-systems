@@ -17,6 +17,8 @@ import Mesh from './geometry/Mesh';
 const controls = {
 };
 
+let objString: string;
+
 let square: Square;
 let mesh: Mesh;
 let screenQuad: ScreenQuad;
@@ -29,7 +31,31 @@ function loadScene() {
   square = new Square();
   square.create();
 
-  mesh = new Mesh("../cylinder.obj", vec3.fromValues(0.0,0.0,0.0));
+  //let objString: string;
+  
+  function readTextFile(file: string)
+  {
+    var obj: string;
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                var allText = rawFile.responseText;
+                obj = allText;
+            }
+        }
+    }
+    rawFile.send(null);
+    return obj;
+  }
+
+  let objString = readTextFile("src/cylinder.obj");
+
+  mesh = new Mesh(objString, vec3.fromValues(0.0,0.0,0.0));
   mesh.create();
 
   screenQuad = new ScreenQuad();
@@ -43,10 +69,12 @@ function loadScene() {
 
   // CONSTRUCT L SYSTEM
   let ruleMap = new Map<string, ExpansionRule>();
-  let iterations = 5;
   ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "F[BA]///[A]///B"}]));
   ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "-F&A+-&"}]));
-  ruleMap.set("F", new ExpansionRule([{key: 0.0, value: "F"}]))
+  ruleMap.set("F", new ExpansionRule([{key: 0.0, value: "F"}]));
+
+  let iterations = 5;
+
   lsystem = new LSystemParser("[[AA]-[AB]]+////++A--", ruleMap, iterations);
   lsystem.parseCaller();
 
@@ -105,20 +133,14 @@ function loadScene() {
   console.log(transVec41.length);
   let offsetsArray = [];
   let colorsArray = [];
-  //let n: number = 1.0;
+
   for(let i = 0; i < nInstances; i++) {
     for(let j = 0; j < nInstances; j++) {
-      // offsetsArray.push(i);
-      // offsetsArray.push(j);
-      // offsetsArray.push(0);
 
       offsetsArray.push(0);
       offsetsArray.push(0);
       offsetsArray.push(0);
-      //offsetsArray.push(0);
 
-      // colorsArray.push(i / n);
-      // colorsArray.push(j / n);
       colorsArray.push(1.0);
       colorsArray.push(i / nInstances);
       colorsArray.push(j / nInstances);
@@ -129,12 +151,13 @@ function loadScene() {
   let colors: Float32Array = new Float32Array(colorsArray);
 
   // new matrix to set vbo transformations
-  square.setInstanceLSystemVBOs(transVec41, transVec42, transVec43, transVec44, colors);
-  square.setInstanceVBOs(offsets, colors);
-  square.setNumInstances(nInstances); // grid of "particles"
-
-  //square.setNumInstances(n);
+  //square.setInstanceLSystemVBOs(transVec41, transVec42, transVec43, transVec44, colors);
+  //square.setInstanceVBOs(offsets, colors);
+  //square.setNumInstances(nInstances); // grid of "particles"
   
+  mesh.setInstanceLSystemVBOs(transVec41, transVec42, transVec43, transVec44, colors);
+  mesh.setInstanceVBOs(offsets, colors);
+  mesh.setNumInstances(nInstances);
 }
 
 function main() {
@@ -169,6 +192,7 @@ function main() {
   renderer.setClearColor(0.7, 0.7, 0.7, 1);
   //gl.enable(gl.BLEND);
   //gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
+  gl.enable(gl.DEPTH_TEST);
 
   const instancedShader = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/instanced-vert.glsl')),
@@ -190,7 +214,7 @@ function main() {
     renderer.clear();
     renderer.render(camera, flat, [screenQuad]);
     renderer.render(camera, instancedShader, [
-      square,
+      mesh,
     ]);
     stats.end();
 

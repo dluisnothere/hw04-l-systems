@@ -40,7 +40,7 @@ class LSystemParser {
             var newString = "";
 
             for (let i = 0; i < this.currString.length; i++) {
-                console.log(this.currString.charAt(i));
+                //console.log(this.currString.charAt(i));
                 currChar = this.currString.charAt(i);
                 if (this.isCharacter(currChar)) {
                     ruleForChar = this.rules.get(currChar);
@@ -68,7 +68,7 @@ class LSystemParser {
         this.parseRecursive(curDepth);
 
         //DEBUG LOG
-        console.log(this.currString);
+        //console.log(this.currString);
     }
 
     /**
