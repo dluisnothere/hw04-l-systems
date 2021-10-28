@@ -20,6 +20,7 @@ in vec4 vs_TransVec44;
 
 out vec4 fs_Col;
 out vec4 fs_Pos;
+out vec4 fs_Nor;
 
 //take in in vec4s of the matrix
 
@@ -28,16 +29,11 @@ void main()
     //TODO
     mat4 treeTransform = mat4(vs_TransVec41, vs_TransVec42, vs_TransVec43, vs_TransVec44);
 
-    //mat4 treeTransform = mat4();
     fs_Col = vs_Col;
     fs_Pos = vs_Pos;
+    fs_Nor = vs_Nor;
 
     vec4 model_position = treeTransform * vs_Pos;
 
-    //vec3 offset = vs_Translate;
-    //offset.z = (sin((offset.x) * 3.14159 * 0.1) + cos((offset.y) * 3.14159 * 0.1)) * 1.5;
-
-    //vec3 billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];
-
-    gl_Position = u_ViewProj * model_position;//* vec4(billboardPos, 1.0);
+    gl_Position = u_ViewProj * model_position;
 }

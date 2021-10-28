@@ -53,7 +53,7 @@ function loadScene() {
     return obj;
   }
 
-  let objString = readTextFile("src/cylinder.obj");
+  let objString = readTextFile("src/cylinder4.obj");
 
   mesh = new Mesh(objString, vec3.fromValues(0.0,0.0,0.0));
   mesh.create();
@@ -80,7 +80,7 @@ function loadScene() {
 
   let worldorigin = vec4.fromValues(0.0, 0.0, 0.0, 1.0);
 
-  lrender = new LSystemRenderer(worldorigin, lsystem.currString, 2.0, 15.0);
+  lrender = new LSystemRenderer(worldorigin, lsystem.currString, 1.0, 20.0);
   lrender.traverseGrammar();
 
   // set up lsystem transforms
@@ -185,7 +185,7 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(10, -10, 10), vec3.fromValues(10, -10, 10));
+  const camera = new Camera(vec3.fromValues(0, 20, 0), vec3.fromValues(0, 0, 0));
 
   const renderer = new OpenGLRenderer(canvas);
   // 0.7
