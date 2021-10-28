@@ -1,4 +1,4 @@
-import {vec3, mat4} from 'gl-matrix';
+import {vec3, vec4, mat4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
@@ -43,13 +43,16 @@ function loadScene() {
 
   // CONSTRUCT L SYSTEM
   let ruleMap = new Map<string, ExpansionRule>();
-  let iterations = 2;
-  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "A+A"}]));
-  //ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "+AB"}]));
-  lsystem = new LSystemParser("A", ruleMap, iterations);
+  let iterations = 5;
+  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "F[BA]///[A]///B"}]));
+  ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "-F&A+-&"}]));
+  ruleMap.set("F", new ExpansionRule([{key: 0.0, value: "F"}]))
+  lsystem = new LSystemParser("[[AA]-[AB]]+////++A--", ruleMap, iterations);
   lsystem.parseCaller();
 
-  lrender = new LSystemRenderer(lsystem.currString, 1.0);
+  let worldorigin = vec4.fromValues(0.0, 0.0, 0.0, 1.0);
+
+  lrender = new LSystemRenderer(worldorigin, lsystem.currString, 2.0, 15.0);
   lrender.traverseGrammar();
 
   // set up lsystem transforms
@@ -117,8 +120,8 @@ function loadScene() {
       // colorsArray.push(i / n);
       // colorsArray.push(j / n);
       colorsArray.push(1.0);
-      colorsArray.push(1.0);
-      colorsArray.push(1.0);
+      colorsArray.push(i / nInstances);
+      colorsArray.push(j / nInstances);
       colorsArray.push(1.0); // Alpha channel
     }
   }
@@ -159,13 +162,13 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(-20, -20, -20), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(10, -10, 10), vec3.fromValues(10, -10, 10));
 
   const renderer = new OpenGLRenderer(canvas);
   // 0.7
-  renderer.setClearColor(0.2, 0.2, 0.2, 1);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
+  renderer.setClearColor(0.7, 0.7, 0.7, 1);
+  //gl.enable(gl.BLEND);
+  //gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
 
   const instancedShader = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/instanced-vert.glsl')),

@@ -10,13 +10,19 @@ class LSystemRenderer {
     turtleStack: Turtle[];
     transformList: DrawingRule[];
 
+    angle: number;
+
+    systemOrigin: vec4;
+
     segLength: number;
 
-    constructor(grammar: string, length: number) {
+    constructor(origin: vec4, grammar: string, length: number, angle: number) {
+        this.systemOrigin = origin;
         this.expandedGrammar = grammar;
         this.turtleStack = [];
         this.transformList = [];
-        this.segLength = length; 
+        this.segLength = length;
+        this.angle = angle; 
     }
 
     /**
@@ -33,9 +39,9 @@ class LSystemRenderer {
 
     traverseGrammar() {
         // for now, only 2d, but in 3d, randomly choose axis
-        let turtPos = vec4.fromValues(0.0, 0.0, 0.0, 1.0);
+        //let turtPos = vec4.fromValues(0.0, 0.0, 0.0, 1.0);
         //let turtOri = vec4.fromValues(0.0, 0.0, 0.0, 0.0);
-        let turt = new Turtle(turtPos, 0, this.segLength);
+        let turt = new Turtle(this.systemOrigin, 0);
         
         // traverse string
         for(let i = 0; i < this.expandedGrammar.length; i++) {
@@ -46,15 +52,41 @@ class LSystemRenderer {
             // make new turtle when old turtle goes on the stack (AKA marks pivot point)
             let zAxis = vec3.fromValues(0.0, 0.0, 1.0);
             let yAxis = vec3.fromValues(0.0, 1.0, 0.0);
+            let xAxis = vec3.fromValues(1.0, 0.0, 0.0);
 
             if (this.isCharacter(currChar)) {
                 turt.marchForward(yAxis, this.segLength);
             } else if (currChar == "+") {
-                turt.rotate(zAxis, this.toRadian(30.0));
+                turt.rotate(zAxis, this.toRadian(this.angle));
                 continue;
             } else if (currChar == "-") {
-                let zAxis = vec3.fromValues(0.0, 0.0, 1.0);
-                turt.rotate(zAxis, this.toRadian(-30.0));
+                turt.rotate(zAxis, this.toRadian(-this.angle));
+                continue;
+            } else if (currChar == "&") {
+                turt.rotate(xAxis, this.toRadian(this.angle));
+                continue;
+            } else if (currChar == "^") {
+                turt.rotate(xAxis, this.toRadian(-this.angle));
+                continue;
+            } else if (currChar == "|") {
+                turt.rotate(yAxis, this.toRadian(this.angle));
+                continue;
+            } else if (currChar == "/") {
+                turt.rotate(yAxis, this.toRadian(-this.angle));
+                continue;
+            } else if (currChar == '[') {
+                // create new turtle with all the transform history
+                // add old turtle to stack
+                this.turtleStack.push(turt);
+                //let newTurtStart = turt.getTransform() * this.systemOrigin;
+                let newTurt = new Turtle(this.systemOrigin, 0);
+
+                newTurt.currTransform = mat4.copy(newTurt.currTransform, turt.currTransform);
+                turt = newTurt;
+                continue;
+            } else if (currChar == ']') {
+                let topTurtle = this.turtleStack.pop();
+                turt = topTurtle;
                 continue;
             }
 

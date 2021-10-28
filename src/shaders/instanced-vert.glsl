@@ -30,7 +30,7 @@ void main()
 
     //mat4 treeTransform = mat4();
     fs_Col = vs_Col;
-    fs_Pos = treeTransform * vs_Pos;
+    fs_Pos = vs_Pos;
 
     vec4 model_position = treeTransform * vs_Pos;
 
