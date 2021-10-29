@@ -6108,15 +6108,15 @@ function loadScene() {
         return obj;
     }
     // CYLINDER MESH CREATE
-    let cylinderString = readTextFile("src/cylinder3.obj");
+    let cylinderString = readTextFile("./cylinder3.obj");
     cylinder = new __WEBPACK_IMPORTED_MODULE_12__geometry_Mesh__["a" /* default */](cylinderString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 0.0, 0.0));
     cylinder.create();
     // FLOWER MESH CREATE
-    let flowerString = readTextFile("src/ball.obj");
+    let flowerString = readTextFile("./ball.obj");
     flower = new __WEBPACK_IMPORTED_MODULE_12__geometry_Mesh__["a" /* default */](flowerString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 0.0, 0.0));
     flower.create();
     // SEA CREATURE CREATE
-    let creatureString = readTextFile("src/fish.obj");
+    let creatureString = readTextFile("./fish.obj");
     creature = new __WEBPACK_IMPORTED_MODULE_12__geometry_Mesh__["a" /* default */](creatureString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 0.0, 0.0));
     creature.create();
     // BACKGROUND CREATE
