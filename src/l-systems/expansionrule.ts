@@ -27,8 +27,6 @@ class ExpansionRule {
                 return this.expansions[i].value;
             }
         }
-        // DEBUG LOG
-        return "what";
     }
 
 }
