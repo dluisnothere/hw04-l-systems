@@ -22,8 +22,8 @@ class Mesh extends Drawable {
 
   constructor(objString: string, center: vec3) {
     super(); // Call the constructor of the super class. This is required.
-    console.log("objstring");
-    console.log(objString);
+    //console.log("objstring");
+    //console.log(objString);
     this.center = vec4.fromValues(center[0], center[1], center[2], 1);
 
     this.objString = objString;

@@ -4,15 +4,17 @@ import DrawingRule from './drawingrule';
 
 class Turtle {
     currTransform: mat4;
+    //currPos: vec4;
 
     startPos: vec4;
 
-    recursionDepth: number;
+    depth: number;
     drawRule: DrawingRule;
 
     constructor(pos: vec4, depth: number) {
-        this.recursionDepth = depth;
+        this.depth = depth;
         this.startPos = pos;
+        //this.currPos = pos;
         
         this.currTransform = mat4.create();
 
@@ -27,7 +29,13 @@ class Turtle {
                                             0.0, 1.0, 0.0, stepSize * marchVector[1],
                                             0.0, 0.0, 1.0, stepSize * marchVector[2],
                                             0.0, 0.0, 0.0, 1.0);
+
+        //this.currPos[0] += stepSize * marchVector[0];
+        //this.currPos[1] += stepSize * marchVector[1];
+        //this.currPos[2] += stepSize * marchVector[2];
+
         mat4.multiply(this.currTransform, newTransMatrix, this.currTransform);
+        this.depth++;
     }
 
     // assumes rotateAxis is always one of the three axes
@@ -39,6 +47,15 @@ class Turtle {
         mat4.rotateZ(newRotMatrix, newRotMatrix, rotateAxis[2] * angle);
 
         mat4.multiply(this.currTransform, newRotMatrix, this.currTransform);
+        this.depth++;
+    }
+
+    scale(factor: number) {
+        let newScaleMatrix = mat4.create();
+        mat4.scale(newScaleMatrix, newScaleMatrix, vec3.fromValues(factor, factor, factor));
+
+        mat4.multiply(this.currTransform, newScaleMatrix, this.currTransform);
+        this.depth++;
     }
 }
 

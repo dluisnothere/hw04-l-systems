@@ -43,10 +43,11 @@ class LSystemParser {
                 //console.log(this.currString.charAt(i));
                 currChar = this.currString.charAt(i);
                 if (this.isCharacter(currChar)) {
-                    ruleForChar = this.rules.get(currChar);
-                    stringReplacement = ruleForChar.getExpansion();
-                    newString += stringReplacement;
-
+                    if (this.rules.has(currChar)) {
+                        ruleForChar = this.rules.get(currChar);
+                        stringReplacement = ruleForChar.getExpansion();
+                        newString += stringReplacement;    
+                    }
                 } else {
                     // JUST SKIP THIS CHARACTER and add it to the newstring appropriately.
                     newString += currChar;
@@ -68,7 +69,7 @@ class LSystemParser {
         this.parseRecursive(curDepth);
 
         //DEBUG LOG
-        //console.log(this.currString);
+        console.log(this.currString);
     }
 
     /**

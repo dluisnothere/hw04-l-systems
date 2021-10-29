@@ -17,10 +17,11 @@ import Mesh from './geometry/Mesh';
 const controls = {
 };
 
-let objString: string;
 
 let square: Square;
-let mesh: Mesh;
+let cylinder: Mesh;
+let flower: Mesh;
+let creature: Mesh;
 let screenQuad: ScreenQuad;
 let time: number = 0.0;
 
@@ -30,8 +31,6 @@ let lrender: LSystemRenderer;
 function loadScene() {
   square = new Square();
   square.create();
-
-  //let objString: string;
   
   function readTextFile(file: string)
   {
@@ -53,10 +52,25 @@ function loadScene() {
     return obj;
   }
 
-  let objString = readTextFile("src/cylinder4.obj");
+  // CYLINDER MESH CREATE
+  let cylinderString = readTextFile("src/cylinder3.obj");
 
-  mesh = new Mesh(objString, vec3.fromValues(0.0,0.0,0.0));
-  mesh.create();
+  cylinder = new Mesh(cylinderString, vec3.fromValues(0.0,0.0,0.0));
+  cylinder.create();
+
+  // FLOWER MESH CREATE
+  let flowerString = readTextFile("src/ball.obj");
+
+  flower = new Mesh(flowerString, vec3.fromValues(0.0, 0.0, 0.0));
+  flower.create();
+
+  // SEA CREATURE CREATE
+  let creatureString = readTextFile("src/fish.obj");
+
+  creature = new Mesh(creatureString, vec3.fromValues(0.0,0.0,0.0));
+  creature.create();
+
+  // BACKGROUND CREATE
 
   screenQuad = new ScreenQuad();
   screenQuad.create();
@@ -69,95 +83,213 @@ function loadScene() {
 
   // CONSTRUCT L SYSTEM
   let ruleMap = new Map<string, ExpansionRule>();
-  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "F[BA]///[A]///B"}]));
-  ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "-F&A+-&"}]));
+  ruleMap.set("A", new ExpansionRule([{key: 0.0, value: "F[BA]/F//[AB]/F//B"}]));
+  ruleMap.set("B", new ExpansionRule([{key: 0.0, value: "-F&A+&C"}]));
   ruleMap.set("F", new ExpansionRule([{key: 0.0, value: "F"}]));
 
   let iterations = 5;
 
-  lsystem = new LSystemParser("[[AA]-[AB]]+////++A--", ruleMap, iterations);
+  lsystem = new LSystemParser("D[[AA]-[AB]]+////++A--", ruleMap, iterations);
   lsystem.parseCaller();
 
   let worldorigin = vec4.fromValues(0.0, 0.0, 0.0, 1.0);
 
-  lrender = new LSystemRenderer(worldorigin, lsystem.currString, 1.0, 20.0);
+  lrender = new LSystemRenderer(worldorigin, lsystem.currString, 1.0, 18.0);
   lrender.traverseGrammar();
 
-  // set up lsystem transforms
-  let transVec41Array = [];
-  let transVec42Array = [];
-  let transVec43Array = [];
-  let transVec44Array = [];
+  // set up branch lsystem transforms
+  let brtransVec41Array = [];
+  let brtransVec42Array = [];
+  let brtransVec43Array = [];
+  let brtransVec44Array = [];
 
-  let nInstances = 0;
+  // set up flower transforms
+  let fltransVec41Array = [];
+  let fltransVec42Array = [];
+  let fltransVec43Array = [];
+  let fltransVec44Array = [];
+
+  // set up sea creature transforms:
+  let crtransVec41Array = [];
+  let crtransVec42Array = [];
+  let crtransVec43Array = [];
+  let crtransVec44Array = [];
+
+  // set up base transform
+
+  let nBranchInstances = 0;
+  let nFlowerInstances = 0;
+  let nCreatureInstances = 0;
 
   let lSystemTransforms = lrender.transformList;
 
   for (let i = 0; i < lSystemTransforms.length; i++) {
+    let shapeNum = lSystemTransforms[i].shape;
     let currentMat = lSystemTransforms[i].transform;
-    transVec41Array.push(currentMat[0]);
-    transVec41Array.push(currentMat[4]);
-    transVec41Array.push(currentMat[8]);
-    transVec41Array.push(currentMat[12]);
 
-    transVec42Array.push(currentMat[1]);
-    transVec42Array.push(currentMat[5]);
-    transVec42Array.push(currentMat[9]);
-    transVec42Array.push(currentMat[13]);
+    //base 
+    if (shapeNum == 0) {
 
-    transVec43Array.push(currentMat[2]);
-    transVec43Array.push(currentMat[6]);
-    transVec43Array.push(currentMat[10]);
-    transVec43Array.push(currentMat[14]);
+    } else if (shapeNum == 1) {
+      brtransVec41Array.push(currentMat[0]);
+      brtransVec41Array.push(currentMat[4]);
+      brtransVec41Array.push(currentMat[8]);
+      brtransVec41Array.push(currentMat[12]);
+  
+      brtransVec42Array.push(currentMat[1]);
+      brtransVec42Array.push(currentMat[5]);
+      brtransVec42Array.push(currentMat[9]);
+      brtransVec42Array.push(currentMat[13]);
+  
+      brtransVec43Array.push(currentMat[2]);
+      brtransVec43Array.push(currentMat[6]);
+      brtransVec43Array.push(currentMat[10]);
+      brtransVec43Array.push(currentMat[14]);
+  
+      brtransVec44Array.push(currentMat[3]);
+      brtransVec44Array.push(currentMat[7]);
+      brtransVec44Array.push(currentMat[11]);
+      brtransVec44Array.push(currentMat[15]);
+  
+      nBranchInstances += 1;
+    } else if (shapeNum == 2) {
 
-    transVec44Array.push(currentMat[3]);
-    transVec44Array.push(currentMat[7]);
-    transVec44Array.push(currentMat[11]);
-    transVec44Array.push(currentMat[15]);
+      fltransVec41Array.push(currentMat[0]);
+      fltransVec41Array.push(currentMat[4]);
+      fltransVec41Array.push(currentMat[8]);
+      fltransVec41Array.push(currentMat[12]);
+  
+      fltransVec42Array.push(currentMat[1]);
+      fltransVec42Array.push(currentMat[5]);
+      fltransVec42Array.push(currentMat[9]);
+      fltransVec42Array.push(currentMat[13]);
+  
+      fltransVec43Array.push(currentMat[2]);
+      fltransVec43Array.push(currentMat[6]);
+      fltransVec43Array.push(currentMat[10]);
+      fltransVec43Array.push(currentMat[14]);
+  
+      fltransVec44Array.push(currentMat[3]);
+      fltransVec44Array.push(currentMat[7]);
+      fltransVec44Array.push(currentMat[11]);
+      fltransVec44Array.push(currentMat[15]);
+  
+      nFlowerInstances += 1;
+    } else if (shapeNum == 3) {
 
-    nInstances += 1;
-  }
-
-  let transVec41 : Float32Array = new Float32Array(transVec41Array);
-  let transVec42 : Float32Array = new Float32Array(transVec42Array);
-  let transVec43 : Float32Array = new Float32Array(transVec43Array);
-  let transVec44 : Float32Array = new Float32Array(transVec44Array);
-
-  console.log("lsystemtrans");
-  console.log(lSystemTransforms);
-
-  console.log("count");
-  console.log(nInstances);
-
-  console.log("length of vec");
-  console.log(transVec41.length);
-  let offsetsArray = [];
-  let colorsArray = [];
-
-  for(let i = 0; i < nInstances; i++) {
-    for(let j = 0; j < nInstances; j++) {
-
-      offsetsArray.push(0);
-      offsetsArray.push(0);
-      offsetsArray.push(0);
-
-      colorsArray.push(1.0);
-      colorsArray.push(i / nInstances);
-      colorsArray.push(j / nInstances);
-      colorsArray.push(1.0); // Alpha channel
+      crtransVec41Array.push(currentMat[0]);
+      crtransVec41Array.push(currentMat[4]);
+      crtransVec41Array.push(currentMat[8]);
+      crtransVec41Array.push(currentMat[12]);
+  
+      crtransVec42Array.push(currentMat[1]);
+      crtransVec42Array.push(currentMat[5]);
+      crtransVec42Array.push(currentMat[9]);
+      crtransVec42Array.push(currentMat[13]);
+  
+      crtransVec43Array.push(currentMat[2]);
+      crtransVec43Array.push(currentMat[6]);
+      crtransVec43Array.push(currentMat[10]);
+      crtransVec43Array.push(currentMat[14]);
+  
+      crtransVec44Array.push(currentMat[3]);
+      crtransVec44Array.push(currentMat[7]);
+      crtransVec44Array.push(currentMat[11]);
+      crtransVec44Array.push(currentMat[15]);
+  
+      nCreatureInstances += 1;
     }
   }
-  let offsets: Float32Array = new Float32Array(offsetsArray);
-  let colors: Float32Array = new Float32Array(colorsArray);
 
-  // new matrix to set vbo transformations
-  //square.setInstanceLSystemVBOs(transVec41, transVec42, transVec43, transVec44, colors);
-  //square.setInstanceVBOs(offsets, colors);
-  //square.setNumInstances(nInstances); // grid of "particles"
-  
-  mesh.setInstanceLSystemVBOs(transVec41, transVec42, transVec43, transVec44, colors);
-  mesh.setInstanceVBOs(offsets, colors);
-  mesh.setNumInstances(nInstances);
+  // BRANCHES 
+  let brtransVec41 : Float32Array = new Float32Array(brtransVec41Array);
+  let brtransVec42 : Float32Array = new Float32Array(brtransVec42Array);
+  let brtransVec43 : Float32Array = new Float32Array(brtransVec43Array);
+  let brtransVec44 : Float32Array = new Float32Array(brtransVec44Array);
+
+  let broffsetsArray = [];
+  let brcolorsArray = [];
+
+  for(let i = 0; i < nBranchInstances; i++) {
+    for(let j = 0; j < nBranchInstances; j++) {
+
+      broffsetsArray.push(0);
+      broffsetsArray.push(0);
+      broffsetsArray.push(0);
+
+      brcolorsArray.push(219.0 / 255.0);
+      brcolorsArray.push(64.0 / 255.0);
+      brcolorsArray.push(108.0 / 255.0);
+      brcolorsArray.push(1.0); // Alpha channel
+    }
+  }
+  let broffsets: Float32Array = new Float32Array(broffsetsArray);
+  let brcolors: Float32Array = new Float32Array(brcolorsArray);
+
+  cylinder.setInstanceLSystemVBOs(brtransVec41, brtransVec42, brtransVec43, brtransVec44, brcolors);
+  cylinder.setInstanceVBOs(broffsets, brcolors);
+  cylinder.setNumInstances(nBranchInstances);
+
+  // FLOWERS
+
+  let fltransVec41 : Float32Array = new Float32Array(fltransVec41Array);
+  let fltransVec42 : Float32Array = new Float32Array(fltransVec42Array);
+  let fltransVec43 : Float32Array = new Float32Array(fltransVec43Array);
+  let fltransVec44 : Float32Array = new Float32Array(fltransVec44Array);
+
+  let floffsetsArray = [];
+  let flcolorsArray = [];
+
+  for(let i = 0; i < nFlowerInstances; i++) {
+    for(let j = 0; j < nFlowerInstances; j++) {
+
+      floffsetsArray.push(0);
+      floffsetsArray.push(0);
+      floffsetsArray.push(0);
+
+      flcolorsArray.push(1.0);
+      flcolorsArray.push(1.0);
+      flcolorsArray.push(1.0);
+      flcolorsArray.push(0.5); // Alpha channel
+    }
+  }
+  let floffsets: Float32Array = new Float32Array(floffsetsArray);
+  let flcolors: Float32Array = new Float32Array(flcolorsArray);
+
+  flower.setInstanceLSystemVBOs(fltransVec41, fltransVec42, fltransVec43, fltransVec44, flcolors);
+  flower.setInstanceVBOs(floffsets, flcolors);
+  flower.setNumInstances(nFlowerInstances);
+
+  // CREATURES 
+
+  let crtransVec41 : Float32Array = new Float32Array(crtransVec41Array);
+  let crtransVec42 : Float32Array = new Float32Array(crtransVec42Array);
+  let crtransVec43 : Float32Array = new Float32Array(crtransVec43Array);
+  let crtransVec44 : Float32Array = new Float32Array(crtransVec44Array);
+
+  let croffsetsArray = [];
+  let crcolorsArray = [];
+
+  for(let i = 0; i < nCreatureInstances; i++) {
+    for(let j = 0; j < nCreatureInstances; j++) {
+
+      croffsetsArray.push(0);
+      croffsetsArray.push(0);
+      croffsetsArray.push(0);
+
+      crcolorsArray.push(255.0 / 255.0);
+      crcolorsArray.push(117.0 / 255.0);
+      crcolorsArray.push(43.0 / 255.0);
+      crcolorsArray.push(1.0); // Alpha channel
+    }
+  }
+  let croffsets: Float32Array = new Float32Array(croffsetsArray);
+  let crcolors: Float32Array = new Float32Array(crcolorsArray);
+
+  creature.setInstanceLSystemVBOs(crtransVec41, crtransVec42, crtransVec43, crtransVec44, crcolors);
+  creature.setInstanceVBOs(croffsets, crcolors);
+  creature.setNumInstances(nCreatureInstances);
+
 }
 
 function main() {
@@ -190,7 +322,8 @@ function main() {
   const renderer = new OpenGLRenderer(canvas);
   // 0.7
   renderer.setClearColor(0.7, 0.7, 0.7, 1);
-  //gl.enable(gl.BLEND);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   //gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
   gl.enable(gl.DEPTH_TEST);
 
@@ -214,7 +347,7 @@ function main() {
     renderer.clear();
     renderer.render(camera, flat, [screenQuad]);
     renderer.render(camera, instancedShader, [
-      mesh,
+      cylinder, square, flower, creature
     ]);
     stats.end();
 

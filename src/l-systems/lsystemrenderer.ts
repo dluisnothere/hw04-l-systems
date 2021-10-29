@@ -8,7 +8,9 @@ import { ENGINE_METHOD_STORE } from 'constants';
 class LSystemRenderer {
     expandedGrammar: string;
     turtleStack: Turtle[];
+   // groundTransform: DrawingRule[];
     transformList: DrawingRule[];
+    //flowerTransformList: DrawingRule[];
 
     angle: number;
 
@@ -39,15 +41,21 @@ class LSystemRenderer {
 
     traverseGrammar() {
         // for now, only 2d, but in 3d, randomly choose axis
-        //let turtPos = vec4.fromValues(0.0, 0.0, 0.0, 1.0);
-        //let turtOri = vec4.fromValues(0.0, 0.0, 0.0, 0.0);
         let turt = new Turtle(this.systemOrigin, 0);
+
+        // 0 = base
+        // 1 = cylinder
+        // 2 = "leaf"
+        // 3 = sea creature
+        let shape = 0;
+        let prevChar = '';
         
+        this.transformList.push(new DrawingRule(shape, turt.getTransform()));
         // traverse string
         for(let i = 0; i < this.expandedGrammar.length; i++) {
-
+            
             let currChar = this.expandedGrammar.substring(i, i + 1);
-
+            shape = 1;
             // turtle
             // make new turtle when old turtle goes on the stack (AKA marks pivot point)
             let zAxis = vec3.fromValues(0.0, 0.0, 1.0);
@@ -55,45 +63,76 @@ class LSystemRenderer {
             let xAxis = vec3.fromValues(1.0, 0.0, 0.0);
 
             if (this.isCharacter(currChar)) {
+                if (currChar == 'D') {
+                    let drawRule = new DrawingRule(shape, turt.getTransform());
+                    this.transformList.push(drawRule);
+                    prevChar = currChar;
+                    continue;
+                }
                 turt.marchForward(yAxis, this.segLength);
             } else if (currChar == "+") {
                 turt.rotate(zAxis, this.toRadian(this.angle));
+                prevChar = currChar;
                 continue;
             } else if (currChar == "-") {
                 turt.rotate(zAxis, this.toRadian(-this.angle));
+                prevChar = currChar;
                 continue;
             } else if (currChar == "&") {
                 turt.rotate(xAxis, this.toRadian(this.angle));
+                prevChar = currChar;
                 continue;
             } else if (currChar == "^") {
                 turt.rotate(xAxis, this.toRadian(-this.angle));
+                prevChar = currChar;
                 continue;
             } else if (currChar == "|") {
                 turt.rotate(yAxis, this.toRadian(this.angle));
+                prevChar = currChar;
                 continue;
             } else if (currChar == "/") {
                 turt.rotate(yAxis, this.toRadian(-this.angle));
+                prevChar = currChar;
                 continue;
             } else if (currChar == '[') {
                 // create new turtle with all the transform history
                 // add old turtle to stack
                 this.turtleStack.push(turt);
-                //let newTurtStart = turt.getTransform() * this.systemOrigin;
                 let newTurt = new Turtle(this.systemOrigin, 0);
 
                 newTurt.currTransform = mat4.copy(newTurt.currTransform, turt.currTransform);
                 turt = newTurt;
+                prevChar = currChar;
                 continue;
             } else if (currChar == ']') {
+                // add current turtle into transform list after moving forward a bit
+                if (prevChar == 'C') {
+                    let threshold = Math.random();
+
+                    if (threshold < 0.5) {
+                        shape = 2;
+                        turt.rotate(xAxis, this.toRadian(10.0));
+                        turt.marchForward(yAxis, this.segLength);
+    
+                    } else if (threshold < 0.7) {
+                        shape = 3; 
+                        turt.rotate(xAxis, this.toRadian(10.0));
+                        turt.marchForward(yAxis, this.segLength * 3.0);
+                        turt.scale(threshold);
+                    }
+
+                    let drawRule = new DrawingRule(shape, turt.getTransform());
+                    this.transformList.push(drawRule);
+                }
+
                 let topTurtle = this.turtleStack.pop();
                 turt = topTurtle;
                 continue;
             }
 
-            let sq = new Square();
-
-            let drawRule = new DrawingRule(sq, turt.getTransform());
+            let drawRule = new DrawingRule(shape, turt.getTransform());
             this.transformList.push(drawRule);
+            prevChar = currChar;
         }
 
         // traverse list of transforms
