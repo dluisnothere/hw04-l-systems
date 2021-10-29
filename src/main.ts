@@ -53,19 +53,19 @@ function loadScene() {
   }
 
   // CYLINDER MESH CREATE
-  let cylinderString = readTextFile("src/cylinder3.obj");
+  let cylinderString = readTextFile("./cylinder3.obj");
 
   cylinder = new Mesh(cylinderString, vec3.fromValues(0.0,0.0,0.0));
   cylinder.create();
 
   // FLOWER MESH CREATE
-  let flowerString = readTextFile("src/ball.obj");
+  let flowerString = readTextFile("./ball.obj");
 
   flower = new Mesh(flowerString, vec3.fromValues(0.0, 0.0, 0.0));
   flower.create();
 
   // SEA CREATURE CREATE
-  let creatureString = readTextFile("src/fish.obj");
+  let creatureString = readTextFile("./fish.obj");
 
   creature = new Mesh(creatureString, vec3.fromValues(0.0,0.0,0.0));
   creature.create();
