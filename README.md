@@ -48,6 +48,17 @@ DrawingRule
 - shape
 - transform
 
+I tried to replicate the grammar from Houdini by using the following rules: 
+
+Axiom: D[[AA]-[AB]]+////++A--
+
+Rule1: A = F[BA]/F//[AB]/F//B
+
+Rule2: B = -F&A+&C
+
+Rule3: F = F
+
+
 
 
 
