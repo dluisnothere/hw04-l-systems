@@ -13,9 +13,30 @@ the appearance in Houdini:
 Design?
 =================
 
-L Systems Parser
+I broke down the L-system into 2 parts: Parser and Renderer. The parser is only responsible for expanding the grammar string, and the renderer is only responsible for drawing while traversing the completely expanded grammar string. This was both in order to make the debugging process easier, but also due to the fact that drawing should only be occurring at the very end.
+
+L Systems Parser: 
+
+- Axiom
+- map<Chars, expansionRule>
+- currentString = at the beginning, axiom
+- constructor()
+- parseRecursive(currDepth: int)
+- resetString() -> unused but thought it might be useful
+
+
+Approach: Make sure parser works by using console.log to show string
 
 
 L Systems Renderer
+
+- expandedGrammar
+- turtleStack
+- transformList
+- angle
+- systemOrigin
+- segLength
+- traverseGrammar()
+
 
 
