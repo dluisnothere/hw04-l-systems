@@ -18,11 +18,17 @@ I broke down the L-system into 2 parts: Parser and Renderer. The parser is only 
 L Systems Parser: 
 
 - Axiom
-- map<Chars, expansionRule>
+- map<Chars, ExpansionRule>
 - currentString = at the beginning, axiom
 - constructor()
 - parseRecursive(currDepth: int)
 - resetString() -> unused but thought it might be useful
+
+ExpansionRule: 
+
+- map<likelihood number, string expansion>
+- constructor()
+- getExpansion() -> picks one of the values from the map based on likelihood threshold
 
 
 Approach: Make sure parser works by using console.log to show string
