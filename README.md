@@ -5,7 +5,7 @@ For this project, we implemented a WebGL scene which uses L Systems grammar to g
 I implemented an underwater anemone or coral-like structure that I discovered after fiddling around in Houdini. Initially, this was
 the appearance in Houdini:
 
-![]anemone.png
+![](anemone.png)
 
 
 
