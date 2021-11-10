@@ -10,4 +10,12 @@ the appearance in Houdini:
 ![](anemonerule.png)
 
 
+Design?
+=================
+
+L Systems Parser
+
+
+L Systems Renderer
+
 
