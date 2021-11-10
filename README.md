@@ -1,4 +1,4 @@
-![Di Lu: L Systems Trees](https://dluisnothere.github.io/hw04-l-systems/)
+Di Lu: L Systems Trees
 =====================================
 
 For this project, we implemented a WebGL scene which uses L Systems grammar to generate structures that appear natural. 
@@ -38,11 +38,17 @@ L Systems Renderer
 
 - expandedGrammar
 - turtleStack
-- transformList
+- transformList -> list of DrawingRules
 - angle
 - systemOrigin
 - segLength
 - traverseGrammar()
+
+DrawingRule
+- shape
+- transform
+
+
 
 
 
