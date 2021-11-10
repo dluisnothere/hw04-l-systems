@@ -1,4 +1,4 @@
-Di Lu: L Systems Trees
+![Di Lu: L Systems Trees](dluisnothere.github.io/hw04-l-systems)
 =====================================
 
 For this project, we implemented a WebGL scene which uses L Systems grammar to generate structures that appear natural. 
